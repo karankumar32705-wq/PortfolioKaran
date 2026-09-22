@@ -1,391 +1,742 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import profilePic from './assets/karan.jpeg';
 
-// Import your custom PNG icons from the assets folder
-import githubIcon from './assets/github.png';
-import linkedinIcon from './assets/linkedin.png';
-import instagramIcon from './assets/instagram.png';
+// ==========================================
+// ZERO-DEPENDENCY INLINE ICONS
+// ==========================================
+const SVGProps = { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" };
 
-const FadeIn = ({ children, delay = 0 }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.6, delay }}
-  >
-    {children}
-  </motion.div>
-);
+const IconMenu = ({ size = 24, className = "" }) => <svg width={size} height={size} className={className} {...SVGProps}><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>;
+const IconX = ({ size = 24, className = "" }) => <svg width={size} height={size} className={className} {...SVGProps}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
+const IconCode = ({ size = 24, className = "" }) => <svg width={size} height={size} className={className} {...SVGProps}><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>;
+const IconDatabase = ({ size = 24, className = "" }) => <svg width={size} height={size} className={className} {...SVGProps}><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>;
+const IconTerminal = ({ size = 24, className = "" }) => <svg width={size} height={size} className={className} {...SVGProps}><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>;
+const IconLayout = ({ size = 24, className = "" }) => <svg width={size} height={size} className={className} {...SVGProps}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>;
+const IconActivity = ({ size = 24, className = "" }) => <svg width={size} height={size} className={className} {...SVGProps}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
+const IconCpu = ({ size = 24, className = "" }) => <svg width={size} height={size} className={className} {...SVGProps}><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>;
+const IconLayers = ({ size = 24, className = "" }) => <svg width={size} height={size} className={className} {...SVGProps}><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 12 12 17 22 12"></polyline><polyline points="2 17 12 22 22 17"></polyline></svg>;
+const IconChevronRight = ({ size = 24, className = "" }) => <svg width={size} height={size} className={className} {...SVGProps}><polyline points="9 18 15 12 9 6"></polyline></svg>;
+const IconExternalLink = ({ size = 24, className = "" }) => <svg width={size} height={size} className={className} {...SVGProps}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>;
+const IconMail = ({ size = 24, className = "" }) => <svg width={size} height={size} className={className} {...SVGProps}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>;
+const IconMapPin = ({ size = 24, className = "" }) => <svg width={size} height={size} className={className} {...SVGProps}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>;
+const IconSmartphone = ({ size = 24, className = "" }) => <svg width={size} height={size} className={className} {...SVGProps}><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>;
+const IconGithub = ({ size = 24, className = "" }) => <svg width={size} height={size} className={className} {...SVGProps}><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>;
+const IconLinkedin = ({ size = 24, className = "" }) => <svg width={size} height={size} className={className} {...SVGProps}><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>;
+const IconInstagram = ({ size = 24, className = "" }) => <svg width={size} height={size} className={className} {...SVGProps}><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>;
+// ==========================================
+
+// Custom hook for scroll reveal animations
+const useScrollReveal = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    );
+
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return [ref, isVisible];
+};
+
+// Reveal Wrapper Component
+const Reveal = ({ children, delay = 0, className = '' }) => {
+  const [ref, isVisible] = useScrollReveal();
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-1000 ease-out ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+      } ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+};
+
+const SECTIONS = ['Home', 'About', 'Education', 'Skills', 'Projects', 'Hackathons', 'Services', 'Experience', 'Contact'];
 
 export default function App() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('Home');
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-  const closeMenu = () => setIsMobileMenuOpen(false);
+  // Handle scroll events for navbar styling and active section tracking
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+      
+      const sections = SECTIONS.map(s => document.getElementById(s.toLowerCase()));
+      const scrollPosition = window.scrollY + 200;
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const section = sections[i];
+        if (section && section.offsetTop <= scrollPosition) {
+          setActiveSection(SECTIONS[i]);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToSection = (sectionId) => {
+    setMobileMenuOpen(false);
+    const element = document.getElementById(sectionId.toLowerCase());
+    if (element) {
+      window.scrollTo({
+        top: element.offsetTop - 80,
+        behavior: 'smooth',
+      });
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-dark bg-gradient-animated font-sans text-gray-200">
+    <div className="min-h-screen bg-[#0A1128] text-[#FDFBF7] font-sans selection:bg-[#E06D53]/30 overflow-hidden relative">
       
-      {/* RESPONSIVE NAVIGATION */}
-      <nav className="fixed top-0 w-full z-50 glass border-b border-white/10 py-4">
-        <div className="max-w-6xl mx-auto px-6 flex justify-between items-center">
-          <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-            Karan.dev
-          </span>
+      {/* Ambient Background Glows */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#E06D53]/15 rounded-full blur-[120px] animate-pulse"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#C05746]/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
+      </div>
+
+      {/* Navigation */}
+      <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+        isScrolled ? 'bg-[#0A1128]/80 backdrop-blur-md border-b border-[#FDFBF7]/10 py-3' : 'bg-transparent py-5'
+      }`}>
+        <div className="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center">
+          <div className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#E06D53] to-[#E88D72] cursor-pointer" onClick={() => scrollToSection('Home')}>
+            Karan<span className="text-[#FDFBF7]">.</span>
+          </div>
           
-          {/* Desktop Menu */}
-          <div className="hidden md:flex gap-6 text-sm font-medium">
-            <a href="#home" className="hover:text-blue-400 transition">Home</a>
-            <a href="#education" className="hover:text-blue-400 transition">Education</a>
-            <a href="#tech-stack" className="hover:text-blue-400 transition">Tech Stack</a>
-            <a href="#projects" className="hover:text-blue-400 transition">Projects</a>
-            <a href="#achievements" className="hover:text-blue-400 transition">Achievements</a>
-            <a href="#contact" className="hover:text-blue-400 transition">Contact</a>
+          {/* Desktop Nav */}
+          <div className="hidden lg:flex space-x-6">
+            {SECTIONS.map((item) => (
+              <button
+                key={item}
+                onClick={() => scrollToSection(item)}
+                className={`text-sm font-medium transition-colors hover:text-[#E06D53] ${
+                  activeSection === item ? 'text-[#E06D53]' : 'text-[#FDFBF7]/70'
+                }`}
+              >
+                {item}
+              </button>
+            ))}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button 
-            className="md:hidden flex flex-col gap-1.5 p-2 z-50"
-            onClick={toggleMenu}
-          >
-            <span className={`block w-6 h-0.5 bg-white transition-transform ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
-            <span className={`block w-6 h-0.5 bg-white transition-opacity ${isMobileMenuOpen ? 'opacity-0' : ''}`}></span>
-            <span className={`block w-6 h-0.5 bg-white transition-transform ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+          {/* Mobile Nav Toggle */}
+          <button className="lg:hidden text-[#FDFBF7]" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            {mobileMenuOpen ? <IconX size={24} /> : <IconMenu size={24} />}
           </button>
         </div>
 
-        {/* Mobile Dropdown Menu */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="absolute top-full left-0 w-full glass-card border-t border-white/10 py-4 px-6 flex flex-col gap-4 md:hidden"
-            >
-              <a href="#home" onClick={closeMenu} className="block text-lg hover:text-blue-400 transition">Home</a>
-              <a href="#education" onClick={closeMenu} className="block text-lg hover:text-blue-400 transition">Education</a>
-              <a href="#tech-stack" onClick={closeMenu} className="block text-lg hover:text-blue-400 transition">Tech Stack</a>
-              <a href="#projects" onClick={closeMenu} className="block text-lg hover:text-blue-400 transition">Projects</a>
-              <a href="#achievements" onClick={closeMenu} className="block text-lg hover:text-blue-400 transition">Achievements</a>
-              <a href="#contact" onClick={closeMenu} className="block text-lg hover:text-blue-400 transition">Contact</a>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Mobile Nav Menu */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden absolute top-full left-0 w-full bg-[#050914]/95 backdrop-blur-xl border-b border-[#FDFBF7]/10 py-4 px-6 flex flex-col space-y-4 shadow-2xl">
+            {SECTIONS.map((item) => (
+              <button
+                key={item}
+                onClick={() => scrollToSection(item)}
+                className={`text-left text-base font-medium ${
+                  activeSection === item ? 'text-[#E06D53]' : 'text-[#FDFBF7]/70'
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        )}
       </nav>
 
-      {/* HERO SECTION */}
-      <section id="home" className="min-h-screen flex items-center justify-center pt-24 px-6 relative overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-48 md:w-64 h-48 md:h-64 bg-blue-600/20 rounded-full blur-[80px] md:blur-[100px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-48 md:w-64 h-48 md:h-64 bg-purple-600/20 rounded-full blur-[80px] md:blur-[100px]" />
-
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10 text-center md:text-left">
-          <motion.div 
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h2 className="text-blue-400 font-semibold mb-2 text-sm md:text-base">Aspiring Data Scientist | AI/ML Enthusiast</h2>
-            <h1 className="text-4xl md:text-7xl font-bold mb-6 leading-tight text-white">
-              Hi, I'm <br className="hidden md:block"/>
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
-                Karan Kumar
-              </span>
-            </h1>
-            <p className="text-gray-400 mb-8 leading-relaxed text-base md:text-lg px-4 md:px-0">
-              A Computer Science & Engineering student at IIIT Kalyani (Class of 2029). I'm passionate about AI/ML, Data Science, and creating modern web experiences. I enjoy turning ideas into interactive digital reality through code.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start px-4 md:px-0">
-              <a href="#projects" className="px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium hover:scale-105 transition transform shadow-lg shadow-purple-500/30">
-                View My Projects
-              </a>
-              <a href="#contact" className="px-6 py-3 rounded-full glass border border-gray-600 text-white font-medium hover:bg-white/10 transition">
-                Let's Connect
-              </a>
-            </div>
-          </motion.div>
-
-          {/* Profile Image Area */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            className="relative flex justify-center mt-8 md:mt-0"
-          >
-            <div className="relative w-64 h-64 md:w-96 md:h-96">
-              <div className="absolute inset-0 rounded-full border-2 border-purple-500/30 animate-[spin_10s_linear_infinite]" />
-              <div className="absolute inset-4 rounded-full border-2 border-blue-500/30 animate-[spin_15s_linear_infinite_reverse]" />
-              <img 
-                src="public/karan.jpg" 
-                alt="Karan Kumar" 
-                className="absolute inset-8 rounded-full object-cover shadow-2xl glass p-2"
-              />
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* EDUCATIONAL MILESTONES */}
-      <section id="education" className="py-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          <FadeIn>
-            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">Educational <span className="text-purple-400">Milestones</span></h2>
-          </FadeIn>
-          
-          <div className="space-y-8">
-            <FadeIn delay={0.2}>
-              <div className="glass-card p-6 md:p-8 rounded-3xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-bl-full" />
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
-                  <h3 className="text-2xl font-semibold text-white">B.Tech in Computer Science & Engineering</h3>
-                  <span className="px-4 py-1 rounded-full bg-blue-500/20 text-blue-300 text-sm font-medium w-max mt-2 md:mt-0">
-                    2025 — 2029 (Expected)
+      {/* Main Content container */}
+      <main className="relative z-10">
+        
+        {/* HERO SECTION */}
+        <section id="home" className="min-h-screen flex items-center justify-center pt-20 px-6 md:px-12">
+          <div className="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            
+            {/* Left: Text Content */}
+            <Reveal>
+              <div className="space-y-6">
+                <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#E06D53]/10 border border-[#E06D53]/20 text-[#E06D53] text-sm font-medium">
+                  <span className="w-2 h-2 rounded-full bg-[#E06D53] animate-pulse mr-2"></span>
+                  Available for opportunities
+                </div>
+                
+                <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
+                  Hi, I'm <br />
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#E06D53] via-[#E88D72] to-[#FDFBF7]">
+                    Karan Kumar
                   </span>
-                </div>
-                <h4 className="text-lg text-purple-400 mb-4">Indian Institute of Information Technology (IIIT), Kalyani</h4>
-                <p className="text-gray-400 leading-relaxed">
-                  Currently pursuing my undergraduate degree focusing on core computer science fundamentals, data structures, algorithms, and practical software development. Actively participating in hackathons and technical clubs.
+                </h1>
+                
+                <h2 className="text-xl md:text-2xl font-medium text-[#FDFBF7]/90">
+                  Aspiring Data Scientist | AI/ML Enthusiast | UI/UX & Web Developer
+                </h2>
+                
+                <p className="text-[#FDFBF7]/70 max-w-lg text-base md:text-lg leading-relaxed">
+                  I'm a Computer Science & Engineering student at IIIT Kalyani passionate about AI/ML, Data Science, and modern web experiences. I enjoy learning, building projects, participating in hackathons, and turning ideas into interactive digital experiences.
                 </p>
-              </div>
-            </FadeIn>
-
-            <FadeIn delay={0.4}>
-              <div className="glass-card p-6 md:p-8 rounded-3xl relative overflow-hidden">
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
-                  <h3 className="text-2xl font-semibold text-white">Higher Secondary Education (12th Grade)</h3>
-                  <span className="px-4 py-1 rounded-full bg-white/10 text-gray-300 text-sm font-medium w-max mt-2 md:mt-0">
-                    Completed
-                  </span>
-                </div>
-                <h4 className="text-lg text-gray-400 mb-4">[Your School Name Here]</h4>
-                <p className="text-gray-500 leading-relaxed">
-                  Completed secondary education with a strong foundation in Mathematics, Physics, and analytical problem-solving, paving the way for my engineering journey.
-                </p>
-              </div>
-            </FadeIn>
-          </div>
-        </div>
-      </section>
-
-      {/* TECH STACK I KNOW */}
-      <section id="tech-stack" className="py-20 px-6 bg-white/[0.02]">
-        <div className="max-w-6xl mx-auto">
-          <FadeIn>
-            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">Tech Stack <span className="text-blue-400">I Know</span></h2>
-          </FadeIn>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            <FadeIn delay={0.1}>
-              <div className="glass-card p-6 rounded-2xl h-full">
-                <h3 className="text-xl font-semibold text-white mb-6 border-b border-gray-700 pb-4">Programming Languages</h3>
-                <div className="flex flex-wrap gap-2">
-                  <span className="px-4 py-2 glass rounded-lg text-gray-300">C</span>
-                  <span className="px-4 py-2 glass rounded-lg text-blue-300">Python</span>
-                  <span className="px-4 py-2 glass rounded-lg text-yellow-300">JavaScript</span>
-                  <span className="px-4 py-2 glass rounded-lg text-gray-300">MIPS Assembly</span>
+                
+                <div className="flex flex-wrap gap-4 pt-4">
+                  <button onClick={() => scrollToSection('Projects')} className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#E06D53] to-[#C05746] text-[#FDFBF7] font-medium hover:shadow-[0_0_20px_rgba(224,109,83,0.4)] hover:-translate-y-1 transition-all duration-300">
+                    View My Projects
+                  </button>
+                  <button onClick={() => scrollToSection('Contact')} className="px-6 py-3 rounded-xl bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 text-[#FDFBF7] font-medium hover:bg-[#FDFBF7]/10 hover:-translate-y-1 transition-all duration-300 backdrop-blur-sm">
+                    Let's Connect
+                  </button>
                 </div>
               </div>
-            </FadeIn>
+            </Reveal>
 
-            <FadeIn delay={0.2}>
-              <div className="glass-card p-6 rounded-2xl h-full">
-                <h3 className="text-xl font-semibold text-white mb-6 border-b border-gray-700 pb-4">Web Development</h3>
-                <div className="flex flex-wrap gap-2">
-                  <span className="px-4 py-2 glass rounded-lg text-cyan-300">React.js</span>
-                  <span className="px-4 py-2 glass rounded-lg text-orange-400">HTML5</span>
-                  <span className="px-4 py-2 glass rounded-lg text-blue-400">CSS3</span>
-                  <span className="px-4 py-2 glass rounded-lg text-teal-300">Tailwind CSS</span>
-                  <span className="px-4 py-2 glass rounded-lg text-purple-300">Three.js / 3D</span>
-                </div>
-              </div>
-            </FadeIn>
-
-            <FadeIn delay={0.3}>
-              <div className="glass-card p-6 rounded-2xl h-full">
-                <h3 className="text-xl font-semibold text-white mb-6 border-b border-gray-700 pb-4">Data Science & Tools</h3>
-                <div className="flex flex-wrap gap-2">
-                  <span className="px-4 py-2 glass rounded-lg text-gray-300">NumPy</span>
-                  <span className="px-4 py-2 glass rounded-lg text-gray-300">Pandas</span>
-                  <span className="px-4 py-2 glass rounded-lg text-gray-300">Matplotlib</span>
-                  <span className="px-4 py-2 glass rounded-lg text-green-300">Tesseract.js</span>
-                  <span className="px-4 py-2 glass rounded-lg text-pink-300">Figma (UI/UX)</span>
-                </div>
-              </div>
-            </FadeIn>
-          </div>
-        </div>
-      </section>
-
-      {/* PROJECTS SECTION */}
-      <section id="projects" className="py-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <FadeIn>
-            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">Featured <span className="text-purple-400">Projects</span></h2>
-          </FadeIn>
-
-          <div className="space-y-12">
-            {/* Project 1: Sentix */}
-            <FadeIn delay={0.2}>
-              <div className="glass-card rounded-3xl overflow-hidden grid md:grid-cols-2 group">
-                <div className="p-6 md:p-12 flex flex-col justify-center">
-                  <div className="inline-block px-4 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs md:text-sm font-medium mb-4 w-max border border-purple-500/30">
-                    Hackathon Project - InnovateX
+            {/* Right: Profile Visual */}
+            <Reveal delay={200}>
+              <div className="relative flex justify-center items-center h-[400px] md:h-[500px]">
+                {/* Glowing Background Ring */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#E06D53]/20 to-[#FDFBF7]/10 rounded-full blur-3xl animate-pulse"></div>
+                
+                {/* Profile Picture Frame */}
+                <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full p-2 bg-gradient-to-br from-[#FDFBF7]/20 to-[#FDFBF7]/5 backdrop-blur-xl border border-[#FDFBF7]/20 shadow-[0_0_40px_rgba(224,109,83,0.2)] z-10 flex items-center justify-center overflow-hidden group">
+                  <div className="w-full h-full rounded-full bg-[#050914] flex items-center justify-center relative overflow-hidden">
+                     <img 
+                       src={profilePic} 
+                       alt="Karan Kumar" 
+                       className="w-full h-full object-cover object-top scale-110 rounded-full group-hover:scale-115 transition-transform duration-500"
+                     />
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Sentix.ai</h3>
-                  <p className="text-gray-400 mb-6 leading-relaxed text-sm md:text-base">
-                    A client-side document scanner and lexical sentiment analysis application built using React and Tesseract.js. Developed with team BIT Breakers, it demonstrates the integration of intelligent AI processing with clean, user-centric frontend web design.
+                </div>
+
+                {/* Floating Elements (Orbiting) */}
+                <style>{`
+                  @keyframes float-1 { 0%, 100% { transform: translateY(0) translateX(0); } 50% { transform: translateY(-20px) translateX(10px); } }
+                  @keyframes float-2 { 0%, 100% { transform: translateY(0) translateX(0); } 50% { transform: translateY(20px) translateX(-15px); } }
+                  @keyframes float-3 { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-15px) rotate(10deg); } }
+                `}</style>
+
+                <div className="absolute top-10 left-10 md:top-20 md:left-20 p-4 rounded-xl bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 backdrop-blur-md shadow-lg z-20" style={{ animation: 'float-1 6s ease-in-out infinite' }}>
+                  <IconActivity className="text-[#E06D53]" size={28} />
+                </div>
+                <div className="absolute bottom-10 left-4 md:bottom-20 md:left-10 p-3 rounded-xl bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 backdrop-blur-md shadow-lg z-20" style={{ animation: 'float-2 7s ease-in-out infinite' }}>
+                  <IconCode className="text-[#E88D72]" size={24} />
+                </div>
+                <div className="absolute top-1/2 right-4 md:right-10 p-4 rounded-xl bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 backdrop-blur-md shadow-lg z-20" style={{ animation: 'float-3 5s ease-in-out infinite' }}>
+                  <IconDatabase className="text-[#FDFBF7]/90" size={28} />
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ABOUT ME SECTION */}
+        <section id="about" className="py-24 px-6 md:px-12 relative">
+          <div className="max-w-5xl mx-auto">
+            <Reveal>
+              <div className="flex items-center gap-4 mb-12">
+                <h2 className="text-3xl md:text-4xl font-bold">About <span className="text-[#E06D53]">Me</span></h2>
+                <div className="h-px bg-gradient-to-r from-[#E06D53]/50 to-transparent flex-1"></div>
+              </div>
+            </Reveal>
+
+            <Reveal delay={100}>
+              <div className="p-8 md:p-10 rounded-3xl bg-[#FDFBF7]/[0.03] border border-[#FDFBF7]/10 backdrop-blur-xl relative overflow-hidden group hover:border-[#FDFBF7]/20 transition-colors duration-500">
+                {/* Decorative background shape */}
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#E06D53]/10 rounded-full blur-[80px] group-hover:bg-[#E06D53]/20 transition-colors duration-500"></div>
+                
+                <div className="relative z-10 text-[#FDFBF7]/80 text-lg leading-relaxed space-y-6">
+                  <p>
+                    I am a B.Tech Computer Science & Engineering student at the 
+                    <strong className="text-[#FDFBF7]"> Indian Institute of Information Technology, Kalyani (IIIT Kalyani)</strong>, 
+                    with an expected graduation in 2029. 
                   </p>
-                  <div className="flex flex-wrap gap-4">
-                    <a href="https://sentix-bit-breakers-innovatex.vercel.app" target="_blank" rel="noreferrer" className="flex items-center justify-center px-6 py-2.5 rounded-full bg-white text-black font-medium hover:bg-gray-200 transition">
-                      Live Demo
-                    </a>
-                    {/* GitHub Link Button with custom PNG icon */}
-                    <a href="https://github.com/yourusername/sentix" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-full glass text-white font-medium hover:bg-white/10 transition">
-                      {/* Using inline style filter to make the black github logo white, or assume you downloaded a white PNG */}
-                      <img src={githubIcon} alt="GitHub" className="w-5 h-5 brightness-200" />
-                      GitHub Repo
-                    </a>
-                  </div>
-                </div>
-                <div className="bg-gray-800 relative overflow-hidden min-h-[250px] md:min-h-[300px]">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-900 to-purple-900 opacity-50" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="glass p-6 rounded-2xl transform group-hover:scale-105 transition duration-500">
-                      <span className="text-xl md:text-2xl font-bold text-white tracking-widest">S E N T I X</span>
+                  <p>
+                    My core interests lie at the intersection of intelligence and design. I have a strong passion for 
+                    <strong className="text-[#FDFBF7]"> AI/ML and Data Science</strong>, continuously working towards my career goal of becoming a Data Scientist. I love analyzing data, building predictive models, and uncovering insights.
+                  </p>
+                  <p>
+                    Simultaneously, I am actively developing my skills in <strong className="text-[#FDFBF7]">web development and UI/UX design</strong>. I believe that powerful algorithms are most effective when paired with intuitive, beautifully designed user interfaces. I enjoy learning new technologies, building practical projects, and participating in hackathons to test my skills in real-world scenarios.
+                  </p>
+
+                  <div className="pt-6 border-t border-[#FDFBF7]/10">
+                    <h3 className="text-sm uppercase tracking-wider text-[#FDFBF7]/50 mb-4 font-semibold">Currently Learning & Exploring</h3>
+                    <div className="flex flex-wrap gap-3">
+                      {['AI/ML', 'Data Science', 'Web Development', 'UI/UX'].map((item) => (
+                        <span key={item} className="px-4 py-2 rounded-lg bg-[#E06D53]/10 border border-[#E06D53]/20 text-[#E88D72] text-sm font-medium flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#E06D53]"></span>
+                          {item}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </div>
               </div>
-            </FadeIn>
+            </Reveal>
+          </div>
+        </section>
 
-            {/* Project 2: Terminal Tetris */}
-            <FadeIn delay={0.4}>
-              <div className="glass-card rounded-3xl overflow-hidden grid md:grid-cols-2 group flex-col-reverse md:flex-row-reverse">
-                <div className="bg-gray-900 relative overflow-hidden min-h-[250px] md:min-h-[300px] border-b md:border-b-0 md:border-r border-white/10">
-                  <div className="absolute inset-0 flex items-center justify-center p-8">
-                    <div className="w-full h-full border border-green-500/30 bg-black rounded-lg p-4 font-mono text-green-400 text-xs md:text-sm flex flex-col opacity-80">
-                      <span>{'>'} ./tetris_game</span>
-                      <span>Loading game logic...</span>
-                      <span>Collision detection enabled.</span>
-                      <span className="mt-4 text-center animate-pulse">Press SPACE to rotate block</span>
+        {/* EDUCATION SECTION */}
+        <section id="education" className="py-24 px-6 md:px-12 relative bg-black/20">
+          <div className="max-w-4xl mx-auto">
+            <Reveal>
+              <div className="flex items-center gap-4 mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold">Academic <span className="text-[#E06D53]">Journey</span></h2>
+                <div className="h-px bg-gradient-to-r from-[#E06D53]/50 to-transparent flex-1"></div>
+              </div>
+            </Reveal>
+
+            <div className="relative pl-8 md:pl-0">
+              {/* Vertical Timeline Line (Desktop centered, Mobile left) */}
+              <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[#E06D53] via-[#E88D72] to-transparent md:-translate-x-1/2"></div>
+
+              <Reveal delay={100}>
+                <div className="relative md:w-1/2 md:pr-12 md:ml-auto md:pl-12 flex flex-col md:items-start items-start mb-12">
+                  {/* Timeline Dot */}
+                  <div className="absolute left-[-33px] md:left-0 top-6 w-4 h-4 rounded-full bg-[#0A1128] border-2 border-[#E06D53] md:-translate-x-1/2 shadow-[0_0_10px_rgba(224,109,83,0.8)] z-10"></div>
+                  
+                  <div className="w-full p-6 md:p-8 rounded-2xl bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 backdrop-blur-md hover:-translate-y-1 hover:border-[#E06D53]/50 transition-all duration-300">
+                    <span className="inline-block px-3 py-1 rounded-full bg-[#E06D53]/20 text-[#E88D72] text-xs font-bold mb-4 tracking-wider">EXPECTED: 2029</span>
+                    <h3 className="text-xl md:text-2xl font-bold text-[#FDFBF7] mb-2">B.Tech in Computer Science & Engineering</h3>
+                    <p className="text-[#E06D53] font-medium mb-4">Indian Institute of Information Technology, Kalyani (IIIT Kalyani)</p>
+                    <p className="text-[#FDFBF7]/70 text-sm">
+                      Focusing on core computer science fundamentals, artificial intelligence, and software engineering principles.
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        {/* SKILLS SECTION */}
+        <section id="skills" className="py-24 px-6 md:px-12 relative">
+          <div className="max-w-6xl mx-auto">
+            <Reveal>
+              <div className="flex items-center gap-4 mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold">Technical <span className="text-[#E06D53]">Skills</span></h2>
+                <div className="h-px bg-gradient-to-r from-[#E06D53]/50 to-transparent flex-1"></div>
+              </div>
+            </Reveal>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Programming */}
+              <Reveal delay={100} className="h-full">
+                <div className="h-full p-6 rounded-2xl bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 backdrop-blur-sm hover:bg-[#FDFBF7]/10 transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-[#E06D53]/15 border border-[#E06D53]/30 flex items-center justify-center mb-6">
+                    <IconTerminal className="text-[#E06D53]" size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold text-[#FDFBF7] mb-6">Programming</h3>
+                  <div className="space-y-4">
+                    {[{name: 'Python', level: 'Strong Base'}, {name: 'C', level: 'Core'}, {name: 'SQL / MySQL', level: 'Database'}].map(skill => (
+                      <div key={skill.name}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-[#FDFBF7]/90">{skill.name}</span>
+                          <span className="text-[#E06D53] text-xs">{skill.level}</span>
+                        </div>
+                        <div className="w-full bg-[#FDFBF7]/10 rounded-full h-1.5">
+                          <div className="bg-[#E06D53] h-1.5 rounded-full" style={{ width: '75%' }}></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+
+              {/* Data Science */}
+              <Reveal delay={200} className="h-full">
+                <div className="h-full p-6 rounded-2xl bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 backdrop-blur-sm hover:bg-[#FDFBF7]/10 transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-[#E06D53]/15 border border-[#E06D53]/30 flex items-center justify-center mb-6">
+                    <IconDatabase className="text-[#E06D53]" size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold text-[#FDFBF7] mb-6">Data Science / Libraries</h3>
+                  <div className="space-y-4">
+                    {['NumPy', 'Pandas', 'Matplotlib'].map(skill => (
+                      <div key={skill}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-[#FDFBF7]/90">{skill}</span>
+                          <span className="text-[#E06D53] text-xs">Basic Knowledge</span>
+                        </div>
+                        <div className="w-full bg-[#FDFBF7]/10 rounded-full h-1.5 relative overflow-hidden">
+                          <div className="bg-[#E06D53] h-1.5 rounded-full absolute left-0 top-0 opacity-80" style={{ width: '40%' }}></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+
+              {/* Web Dev */}
+              <Reveal delay={300} className="h-full">
+                <div className="h-full p-6 rounded-2xl bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 backdrop-blur-sm hover:bg-[#FDFBF7]/10 transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-[#E06D53]/15 border border-[#E06D53]/30 flex items-center justify-center mb-6">
+                    <IconCode className="text-[#E06D53]" size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold text-[#FDFBF7] mb-6">Web Development</h3>
+                  <div className="space-y-4">
+                    {[{name: 'HTML', w: '85%'}, {name: 'CSS', w: '80%'}, {name: 'React', w: '65%'}].map(skill => (
+                      <div key={skill.name}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-[#FDFBF7]/90">{skill.name}</span>
+                        </div>
+                        <div className="w-full bg-[#FDFBF7]/10 rounded-full h-1.5">
+                          <div className="bg-[#E06D53] h-1.5 rounded-full" style={{ width: skill.w }}></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+
+              {/* Design */}
+              <Reveal delay={400} className="h-full">
+                <div className="h-full p-6 rounded-2xl bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 backdrop-blur-sm hover:bg-[#FDFBF7]/10 transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-[#E06D53]/15 border border-[#E06D53]/30 flex items-center justify-center mb-6">
+                    <IconLayout className="text-[#E06D53]" size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold text-[#FDFBF7] mb-6">Design</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-[#FDFBF7]/90">UI/UX Design</span>
+                        <span className="text-[#E06D53] text-xs">Developing</span>
+                      </div>
+                      <div className="w-full bg-[#FDFBF7]/10 rounded-full h-1.5">
+                        <div className="bg-[#E06D53] h-1.5 rounded-full" style={{ width: '60%' }}></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div className="p-6 md:p-12 flex flex-col justify-center">
-                  <div className="inline-block px-4 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs md:text-sm font-medium mb-4 w-max border border-blue-500/30">
-                    C / Linux Development
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        {/* PROJECTS SECTION */}
+        <section id="projects" className="py-24 px-6 md:px-12 relative bg-black/20">
+          <div className="max-w-6xl mx-auto">
+            <Reveal>
+              <div className="flex items-center gap-4 mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold">Featured <span className="text-[#E06D53]">Projects</span></h2>
+                <div className="h-px bg-gradient-to-r from-[#E06D53]/50 to-transparent flex-1"></div>
+              </div>
+            </Reveal>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              
+              {/* Sentix Project */}
+              <Reveal delay={100}>
+                <div className="group rounded-3xl bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 backdrop-blur-md overflow-hidden hover:-translate-y-2 hover:shadow-[0_10px_40px_rgba(224,109,83,0.15)] transition-all duration-500 relative">
+                  <div className="absolute top-4 right-4 z-20">
+                    <span className="px-3 py-1 bg-black/50 backdrop-blur-md border border-[#FDFBF7]/10 rounded-full text-xs font-semibold text-[#E88D72] shadow-lg">Hackathon Project</span>
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Terminal Tetris</h3>
-                  <p className="text-gray-400 mb-6 leading-relaxed text-sm md:text-base">
-                    A console-based implementation of the classic Tetris game written entirely in C for Linux environments. Features include dynamic block rotation matrices, matrix collision detection, and automated line clearing mechanics.
-                  </p>
-                  <div className="flex flex-wrap gap-4">
-                    <a href="https://github.com/yourusername/terminal-tetris" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-full glass text-white font-medium hover:bg-white/10 transition">
-                      <img src={githubIcon} alt="GitHub" className="w-5 h-5 brightness-200" />
-                      GitHub Repo
+                  
+                  {/* Mock Image Area */}
+                  <div className="h-64 w-full bg-[#050914] relative overflow-hidden flex items-center justify-center">
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 z-10"></div>
+                    <div className="flex items-end gap-2 h-32 opacity-70">
+                      {[40, 70, 45, 90, 65, 80, 50].map((h, i) => (
+                        <div key={i} className="w-8 bg-gradient-to-t from-[#C05746] to-[#E06D53] rounded-t-sm animate-pulse" style={{ height: `${h}%`, animationDelay: `${i * 0.1}s` }}></div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="p-8">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-2xl font-bold text-[#FDFBF7]">Sentix</h3>
+                      <div className="flex gap-3">
+                        <a href="https://github.com" target="_blank" rel="noreferrer" className="text-[#FDFBF7]/70 hover:text-[#E06D53] transition-colors">
+                          <IconGithub size={20} />
+                        </a>
+                        <a href="https://sentix-bit-breakers-innovatex.vercel.app" target="_blank" rel="noreferrer" className="text-[#FDFBF7]/70 hover:text-[#E06D53] transition-colors">
+                          <IconExternalLink size={20} />
+                        </a>
+                      </div>
+                    </div>
+                    
+                    <p className="text-[#E06D53] text-sm mb-4 font-medium">BIT Breakers / InnovateX Hackathon</p>
+                    
+                    <p className="text-[#FDFBF7]/70 text-sm leading-relaxed mb-6">
+                      An intelligent application built during the InnovateX Hackathon. Sentix combines modern web technologies to process and visualize data, showcasing a blend of intelligent features and clean UI/UX design.
+                    </p>
+
+                    <div className="flex flex-wrap gap-2 mb-8">
+                      {['React', 'Web Development', 'UI/UX', 'Hackathon Prototype'].map(tag => (
+                        <span key={tag} className="px-3 py-1 bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 rounded-lg text-xs text-[#FDFBF7]/90">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+
+                    <a href="https://sentix-bit-breakers-innovatex.vercel.app" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center w-full py-3 rounded-xl bg-gradient-to-r from-[#E06D53] to-[#C05746] text-[#FDFBF7] font-medium hover:opacity-90 transition-opacity gap-2">
+                      View Live Demo <IconChevronRight size={16} />
                     </a>
                   </div>
                 </div>
-              </div>
-            </FadeIn>
+              </Reveal>
+
+              {/* Future Project Placeholder */}
+              <Reveal delay={200}>
+                <div className="h-full min-h-[400px] rounded-3xl bg-[#FDFBF7]/[0.02] border border-[#FDFBF7]/5 border-dashed flex flex-col items-center justify-center p-8 text-center hover:bg-[#FDFBF7]/[0.04] transition-colors duration-300">
+                  <div className="w-16 h-16 rounded-full bg-[#FDFBF7]/5 flex items-center justify-center mb-6">
+                    <IconCode className="text-[#FDFBF7]/50" size={32} />
+                  </div>
+                  <h3 className="text-xl font-semibold text-[#FDFBF7]/90 mb-2">More Projects Coming Soon...</h3>
+                  <p className="text-[#FDFBF7]/50 text-sm max-w-sm">
+                    I am constantly learning and building. Check back later to see new Data Science models, AI experiments, and web applications.
+                  </p>
+                </div>
+              </Reveal>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ACHIEVEMENTS & CERTIFICATIONS */}
-      <section id="achievements" className="py-20 px-6 bg-white/[0.02]">
-        <div className="max-w-4xl mx-auto">
-          <FadeIn>
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Achievements & <span className="text-pink-400">Certifications</span></h2>
-              <p className="text-gray-400 px-4">Milestones from hackathons, competitions, and continuous learning.</p>
-            </div>
-          </FadeIn>
-
-          <div className="space-y-6">
-            <FadeIn delay={0.2}>
-              <div className="glass p-6 rounded-2xl flex flex-col md:flex-row gap-4 items-start md:items-center justify-between border-l-4 border-l-purple-500 hover:bg-white/5 transition">
-                <div>
-                  <h4 className="text-lg font-semibold text-white">EdTech 3.0 Global Hackathon</h4>
-                  <p className="text-gray-400 text-sm mt-1">Participant - Focused on AI applications for education</p>
-                </div>
-                <span className="text-xs font-medium px-3 py-1 glass rounded-full text-purple-300">June 2026</span>
+        {/* HACKATHONS SECTION */}
+        <section id="hackathons" className="py-24 px-6 md:px-12 relative overflow-hidden">
+          <div className="max-w-5xl mx-auto text-center">
+            <Reveal>
+              <div className="inline-flex items-center justify-center p-4 rounded-full bg-[#E06D53]/10 border border-[#E06D53]/20 mb-6">
+                <IconCpu className="text-[#E06D53]" size={32} />
               </div>
-            </FadeIn>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6">Hackathon <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E06D53] to-[#E88D72]">Participant</span></h2>
+              <p className="text-[#FDFBF7]/70 text-lg max-w-2xl mx-auto mb-12">
+                I thrive in high-energy environments. Participating in hackathons allows me to solve complex problems, collaborate under pressure, experiment with new technologies, and turn abstract ideas into working prototypes.
+              </p>
+            </Reveal>
 
-            <FadeIn delay={0.3}>
-              <div className="glass p-6 rounded-2xl flex flex-col md:flex-row gap-4 items-start md:items-center justify-between border-l-4 border-l-blue-500 hover:bg-white/5 transition">
-                <div>
-                  <h4 className="text-lg font-semibold text-white">Code Canvas - Web Development Competition</h4>
-                  <p className="text-gray-400 text-sm mt-1">GDG IIIT Kalyani - Certificate of Participation</p>
+            <Reveal delay={200}>
+              <div className="relative inline-block">
+                <div className="absolute inset-0 bg-gradient-to-r from-[#E06D53] to-[#C05746] blur-2xl opacity-20 rounded-full"></div>
+                <div className="relative p-6 md:p-8 rounded-3xl bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 backdrop-blur-xl flex flex-col md:flex-row items-center gap-6 text-left">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#C05746] to-[#E06D53] flex items-center justify-center shadow-lg shrink-0">
+                    <IconLayers className="text-[#FDFBF7]" size={28} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-[#FDFBF7]">InnovateX Hackathon</h3>
+                    <p className="text-[#E06D53] text-sm font-medium mb-2">Team: BIT Breakers</p>
+                    <p className="text-[#FDFBF7]/70 text-sm">
+                      Collaborated to build <strong className="text-[#FDFBF7]">Sentix</strong>, focusing on robust architecture and an intuitive user interface. This experience strengthened my ability to rapidly prototype and integrate intelligent features into web applications.
+                    </p>
+                  </div>
                 </div>
-                <span className="text-xs font-medium px-3 py-1 glass rounded-full text-blue-300">March 2026</span>
               </div>
-            </FadeIn>
-
-            <FadeIn delay={0.4}>
-              <div className="glass p-6 rounded-2xl flex flex-col md:flex-row gap-4 items-start md:items-center justify-between border-l-4 border-l-pink-500 hover:bg-white/5 transition">
-                <div>
-                  <h4 className="text-lg font-semibold text-white">InnovateX Hackathon</h4>
-                  <p className="text-gray-400 text-sm mt-1">Team BIT Breakers - Developed Sentix.ai Prototype</p>
-                </div>
-                <span className="text-xs font-medium px-3 py-1 glass rounded-full text-pink-300">2026</span>
-              </div>
-            </FadeIn>
+            </Reveal>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* CONTACT (Form Removed) */}
-      <section id="contact" className="py-20 px-6">
-        <div className="max-w-3xl mx-auto text-center">
-          <FadeIn>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Let's Build Something <span className="text-blue-400">Together</span></h2>
-            <p className="text-gray-400 mb-12">
-              Whether you want to discuss AI, collaborate on a hackathon, or just say hi, my inbox is always open!
-            </p>
-          </FadeIn>
+        {/* SERVICES / WHAT I CAN DO */}
+        <section id="services" className="py-24 px-6 md:px-12 bg-black/20 border-t border-b border-[#FDFBF7]/5">
+          <div className="max-w-6xl mx-auto">
+            <Reveal>
+              <div className="flex flex-col items-center text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold mb-4">What I Can <span className="text-[#E06D53]">Do</span></h2>
+                <p className="text-[#FDFBF7]/70 max-w-xl text-sm">Leveraging my growing skills in web development and design to create modern digital experiences.</p>
+              </div>
+            </Reveal>
 
-          <FadeIn delay={0.2}>
-            <div className="flex flex-col md:flex-row justify-center gap-6 mb-12">
-              <div className="glass-card p-6 rounded-2xl flex items-center justify-center gap-4 w-full md:w-auto">
-                <div className="text-left">
-                  <p className="text-sm text-gray-500 uppercase tracking-wider mb-1">Email</p>
-                  <p className="text-white font-medium md:text-lg">hello@karankumar.dev</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {/* Service 1 */}
+              <Reveal delay={100}>
+                <div className="p-8 rounded-3xl bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 backdrop-blur-sm hover:border-[#E06D53]/30 transition-colors h-full group">
+                  <div className="w-14 h-14 rounded-xl bg-[#E06D53]/10 border border-[#E06D53]/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <IconLayout className="text-[#E06D53]" size={28} />
+                  </div>
+                  <h3 className="text-2xl font-bold text-[#FDFBF7] mb-4">UI/UX Design</h3>
+                  <p className="text-[#FDFBF7]/70 text-sm leading-relaxed mb-6">
+                    I create modern, intuitive, and visually engaging user interfaces with a focus on usability, clean layouts, and contemporary digital aesthetics like glassmorphism and minimal design.
+                  </p>
+                  <ul className="space-y-2">
+                    {['Interactive UI Prototypes', 'User-Centric Layouts', 'Modern Website Design'].map((item, i) => (
+                      <li key={i} className="flex items-center text-sm text-[#FDFBF7]/90 gap-2">
+                        <IconChevronRight size={14} className="text-[#E06D53]" /> {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Reveal>
+
+              {/* Service 2 */}
+              <Reveal delay={200}>
+                <div className="p-8 rounded-3xl bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 backdrop-blur-sm hover:border-[#E06D53]/30 transition-colors h-full group">
+                  <div className="w-14 h-14 rounded-xl bg-[#E06D53]/10 border border-[#E06D53]/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <IconSmartphone className="text-[#E06D53]" size={28} />
+                  </div>
+                  <h3 className="text-2xl font-bold text-[#FDFBF7] mb-4">Frontend Interface Development</h3>
+                  <p className="text-[#FDFBF7]/70 text-sm leading-relaxed mb-6">
+                    Translating designs into responsive, interactive, and performant web interfaces using modern frameworks like React and styling libraries like Tailwind CSS.
+                  </p>
+                  <ul className="space-y-2">
+                    {['Responsive Web Interfaces', 'Component-Based Architecture', 'Smooth Animations & Transitions'].map((item, i) => (
+                      <li key={i} className="flex items-center text-sm text-[#FDFBF7]/90 gap-2">
+                        <IconChevronRight size={14} className="text-[#E06D53]" /> {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        {/* EXPERIENCE & ACTIVITIES */}
+        <section id="experience" className="py-24 px-6 md:px-12">
+          <div className="max-w-4xl mx-auto">
+            <Reveal>
+              <div className="flex items-center gap-4 mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold">Experience & <span className="text-[#E06D53]">Activities</span></h2>
+                <div className="h-px bg-gradient-to-r from-[#E06D53]/50 to-transparent flex-1"></div>
+              </div>
+            </Reveal>
+
+            <Reveal delay={100}>
+              <div className="p-8 rounded-3xl bg-gradient-to-br from-[#E06D53]/10 to-transparent border border-[#E06D53]/20 backdrop-blur-md">
+                <h3 className="text-xl font-bold text-[#FDFBF7] mb-4">Self-Directed Learning & Project Building</h3>
+                <p className="text-[#FDFBF7]/90 mb-6 leading-relaxed">
+                  As a dedicated student, my current "experience" is actively forged through hands-on building, late-night coding sessions, and continuous learning. I am building practical experience by:
+                </p>
+                
+                <div className="space-y-6">
+                  <div className="flex gap-4">
+                    <div className="mt-1 w-8 h-8 rounded-full bg-[#FDFBF7]/5 flex items-center justify-center shrink-0">
+                      <IconTerminal size={14} className="text-[#E06D53]" />
+                    </div>
+                    <div>
+                      <h4 className="text-[#FDFBF7] font-medium">Experimenting with Data Science & AI/ML</h4>
+                      <p className="text-[#FDFBF7]/70 text-sm mt-1">Applying Python, Pandas, and foundational algorithms to understand and model data.</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4">
+                    <div className="mt-1 w-8 h-8 rounded-full bg-[#FDFBF7]/5 flex items-center justify-center shrink-0">
+                      <IconCode size={14} className="text-[#E06D53]" />
+                    </div>
+                    <div>
+                      <h4 className="text-[#FDFBF7] font-medium">Developing Web Applications</h4>
+                      <p className="text-[#FDFBF7]/70 text-sm mt-1">Creating functional prototypes and responsive interfaces to bring ideas to life.</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="mt-1 w-8 h-8 rounded-full bg-[#FDFBF7]/5 flex items-center justify-center shrink-0">
+                      <IconLayers size={14} className="text-[#E06D53]" />
+                    </div>
+                    <div>
+                      <h4 className="text-[#FDFBF7] font-medium">Hackathon Participation</h4>
+                      <p className="text-[#FDFBF7]/70 text-sm mt-1">Engaging in competitive environments like InnovateX to solve problems under constraints.</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="glass-card p-6 rounded-2xl flex items-center justify-center gap-4 w-full md:w-auto">
-                <div className="text-left">
-                  <p className="text-sm text-gray-500 uppercase tracking-wider mb-1">Location</p>
-                  <p className="text-white font-medium md:text-lg">IIIT Kalyani, West Bengal</p>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* CONTACT SECTION */}
+        <section id="contact" className="py-24 px-6 md:px-12 bg-black/40 relative">
+          <div className="max-w-4xl mx-auto flex flex-col items-center">
+            <Reveal>
+              <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-5xl font-bold mb-4">Let's Build Something <span className="text-[#E06D53]">Together</span></h2>
+                <p className="text-[#FDFBF7]/70">Feel free to reach out for collaborations, project inquiries, or just to connect!</p>
+              </div>
+            </Reveal>
+
+            <Reveal delay={100} className="w-full">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                {/* Email Card */}
+                <a href="mailto:email@example.com" className="flex flex-col items-center text-center gap-4 p-8 rounded-3xl bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 hover:bg-[#FDFBF7]/10 transition-colors group">
+                  <div className="w-16 h-16 rounded-full bg-[#E06D53]/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <IconMail className="text-[#E06D53]" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#FDFBF7]/50 uppercase tracking-wider mb-1">Email</p>
+                    <p className="text-[#FDFBF7] font-medium break-all">[Your Email]</p>
+                  </div>
+                </a>
+                
+                {/* Phone Card */}
+                <div className="flex flex-col items-center text-center gap-4 p-8 rounded-3xl bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 hover:bg-[#FDFBF7]/10 transition-colors group">
+                  <div className="w-16 h-16 rounded-full bg-[#E06D53]/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <IconSmartphone className="text-[#E06D53]" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#FDFBF7]/50 uppercase tracking-wider mb-1">Phone</p>
+                    <p className="text-[#FDFBF7] font-medium">[Your Phone]</p>
+                  </div>
+                </div>
+
+                {/* Location Card */}
+                <div className="flex flex-col items-center text-center gap-4 p-8 rounded-3xl bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 hover:bg-[#FDFBF7]/10 transition-colors group">
+                  <div className="w-16 h-16 rounded-full bg-[#E06D53]/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <IconMapPin className="text-[#E06D53]" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#FDFBF7]/50 uppercase tracking-wider mb-1">Location</p>
+                    <p className="text-[#FDFBF7] font-medium">Kalyani, India</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </FadeIn>
 
-          {/* PNG Social Icons */}
-          <FadeIn delay={0.4}>
-            <div className="flex justify-center gap-6">
-              <a href="https://github.com/" target="_blank" rel="noreferrer" className="p-4 glass rounded-full hover:bg-white/10 hover:scale-110 transition transform">
-                <img src={githubIcon} alt="GitHub" className="w-6 h-6 brightness-200" />
-              </a>
-              <a href="https://linkedin.com/" target="_blank" rel="noreferrer" className="p-4 glass rounded-full hover:bg-white/10 hover:scale-110 transition transform">
-                <img src={linkedinIcon} alt="LinkedIn" className="w-6 h-6" />
-              </a>
-              <a href="https://instagram.com/" target="_blank" rel="noreferrer" className="p-4 glass rounded-full hover:bg-white/10 hover:scale-110 transition transform">
-                <img src={instagramIcon} alt="Instagram" className="w-6 h-6" />
-              </a>
-            </div>
-          </FadeIn>
-        </div>
-      </section>
+              {/* Social Links Centered */}
+              <div className="flex justify-center gap-6">
+                <a 
+                  href="https://www.linkedin.com/in/karan-kumar-202530397/0" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="w-14 h-14 rounded-full bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 flex items-center justify-center hover:-translate-y-1 hover:bg-[#FDFBF7]/10 text-[#FDFBF7] hover:text-[#E06D53] transition-all"
+                  aria-label="LinkedIn Profile"
+                >
+                  <IconLinkedin size={24} />
+                </a>
+                
+                <a 
+                  href="https://github.com" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="w-14 h-14 rounded-full bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 flex items-center justify-center hover:-translate-y-1 hover:bg-[#FDFBF7]/10 text-[#FDFBF7] hover:text-[#E06D53] transition-all"
+                  aria-label="GitHub Profile"
+                >
+                  <IconGithub size={24} />
+                </a>
+                
+                <a 
+                  href="https://www.instagram.com/karankumar_307/?hl=en" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="w-14 h-14 rounded-full bg-[#FDFBF7]/5 border border-[#FDFBF7]/10 flex items-center justify-center hover:-translate-y-1 hover:bg-[#FDFBF7]/10 text-[#FDFBF7] hover:text-[#E06D53] transition-all"
+                  aria-label="Instagram Profile"
+                >
+                  <IconInstagram size={24} />
+                </a>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+      </main>
 
       {/* FOOTER */}
-      <footer className="border-t border-white/10 py-8 text-center glass">
-        <p className="text-gray-400 text-xs md:text-sm px-4">
-          Karan Kumar <span className="mx-2 hidden md:inline">•</span><br className="md:hidden"/> Aspiring Data Scientist <span className="mx-2 hidden md:inline">•</span><br className="md:hidden"/> UI/UX Developer
-        </p>
-        <p className="text-gray-600 text-xs mt-3">© 2026 Karan Kumar. All rights reserved.</p>
+      <footer className="relative z-10 border-t border-[#FDFBF7]/10 bg-[#0A1128] py-8 px-6 text-center">
+        <div className="max-w-4xl mx-auto flex flex-col items-center justify-center gap-4">
+          <p className="text-[#FDFBF7]/90 font-medium">
+            Karan Kumar
+          </p>
+          <p className="text-[#FDFBF7]/70 text-sm">
+            Aspiring Data Scientist • AI/ML Enthusiast • UI/UX Designer
+          </p>
+          <p className="text-[#FDFBF7]/50 text-xs mt-4">
+            © 2026 Karan Kumar. All rights reserved.
+          </p>
+        </div>
       </footer>
     </div>
   );
