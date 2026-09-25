@@ -121,6 +121,7 @@ export default function App() {
   const [scrollY, setScrollY] = useState(0);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
+  const [isJumping, setIsJumping] = useState(false);
 
   // Generate random stars for the background
   const stars = useMemo(() => {
@@ -164,11 +165,19 @@ export default function App() {
       );
     };
 
+    const handleMouseDown = () => {
+      setIsJumping(true);
+      setTimeout(() => setIsJumping(false), 300);
+    };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousedown', handleMouseDown);
+    
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mousedown', handleMouseDown);
     };
   }, []);
 
@@ -180,7 +189,7 @@ export default function App() {
     }
   };
 
-  const SKILLS = ['Python', 'C', 'SQL / MySQL', 'NumPy', 'Pandas', 'Matplotlib', 'HTML', 'CSS', 'React', 'Tailwind', 'UI/UX Design', 'Photography'];
+  const SKILLS = ['Python', 'C', 'SQL / MySQL', 'HTML', 'CSS', 'React', 'Tailwind', 'UI/UX Design', 'Photography'];
 
   return (
     <div className="min-h-screen bg-[#030614] text-[#E0E7FF] font-sans selection:bg-[#79E2F2]/30 overflow-hidden relative">
@@ -201,6 +210,26 @@ export default function App() {
           10% { opacity: 1; }
           90% { opacity: 1; }
           100% { transform: translate(115vw, 10vh) rotate(-5deg) scale(1.2); opacity: 0; }
+        }
+
+        /* Multiexposure Alien Background Animation */
+        @keyframes multiexposure-loom {
+          0% { opacity: 0.2; transform: translate(-50%, -45%) scale(0.9); }
+          50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.05); }
+          100% { opacity: 0.2; transform: translate(-50%, -55%) scale(1.15); }
+        }
+
+        .alien-background {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          width: 100vw;
+          max-width: 800px;
+          height: auto;
+          pointer-events: none;
+          z-index: 0;
+          mix-blend-mode: color-dodge; /* Blends better with dark backgrounds */
+          animation: multiexposure-loom 12s infinite alternate ease-in-out;
         }
 
         .ufo-container {
@@ -254,6 +283,25 @@ export default function App() {
         ))}
       </div>
 
+      {/* MULTIEXPOSURE GHOSTLY ALIEN BACKGROUND */}
+      <div className="alien-background">
+        <svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }}>
+          <defs>
+            <radialGradient id="alienGlowBg" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#79E2F2" stopOpacity="0.8" />
+              <stop offset="50%" stopColor="#79E2F2" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#79E2F2" stopOpacity="0" />
+            </radialGradient>
+            <filter id="blurAlien" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="8" />
+            </filter>
+          </defs>
+          <path d="M100 20 C40 20 20 90 20 150 C20 210 60 240 100 240 C140 240 180 210 180 150 C180 90 160 20 100 20 Z" fill="url(#alienGlowBg)" filter="url(#blurAlien)" />
+          <path d="M40 130 C60 110 80 125 75 160 C70 195 30 170 40 130 Z" fill="#030614" filter="url(#blurAlien)" />
+          <path d="M160 130 C140 110 120 125 125 160 C130 195 170 170 160 130 Z" fill="#030614" filter="url(#blurAlien)" />
+        </svg>
+      </div>
+
       {/* ANIMATED UFO / SPACESHIP */}
       <div className="ufo-container">
         <div className="ufo">
@@ -273,14 +321,20 @@ export default function App() {
         </div>
       </div>
 
-      {/* CUSTOM CURSOR */}
+      {/* CUSTOM ALIEN CURSOR */}
       <div 
-        className="fixed top-0 left-0 w-4 h-4 bg-[#79E2F2] rounded-full mix-blend-screen pointer-events-none z-[100] transition-transform duration-75 ease-out hidden md:block shadow-[0_0_15px_#79E2F2]"
+        className="fixed top-0 left-0 pointer-events-none z-[100] hidden md:flex items-center justify-center transition-all ease-out mix-blend-screen drop-shadow-[0_0_12px_#79E2F2]"
         style={{ 
-          transform: `translate(${mousePos.x - 8}px, ${mousePos.y - 8}px) scale(${isHovering ? 2.5 : 1})`,
-          opacity: isHovering ? 0.4 : 1
+          transform: `translate(${mousePos.x - 12}px, ${mousePos.y - 12 - (isJumping ? 30 : 0)}px) scale(${isHovering ? 1.4 : (isJumping ? 0.8 : 1)}) rotate(${isJumping ? 15 : 0}deg)`,
+          transitionDuration: isJumping ? '150ms' : '75ms',
+          opacity: isHovering ? 0.9 : 1
         }}
-      />
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C8 2 4 6 4 11C4 16 8 22 12 22C16 22 20 16 20 11C20 6 16 2 12 2Z" fill="#79E2F2" fillOpacity={isHovering ? "0.8" : "1"} />
+          <path d="M8.5 13C7.1 13 6 11.4 6 9.5C6 7.6 7.1 6 8.5 6C9.9 6 11 7.6 11 9.5C11 11.4 9.9 13 8.5 13ZM15.5 13C14.1 13 13 11.4 13 9.5C13 7.6 14.1 6 15.5 6C16.9 6 18 7.6 18 9.5C18 11.4 16.9 13 15.5 13Z" fill="#030614" />
+        </svg>
+      </div>
       
       {/* SCROLL PROGRESS BAR */}
       <div className="fixed top-0 left-0 h-1 bg-[#79E2F2] z-[60] transition-all duration-300 ease-out shadow-[0_0_10px_#79E2F2]" style={{ width: `${scrollProgress}%` }} />
@@ -357,25 +411,31 @@ export default function App() {
 
             <div className="text-reveal-mask mb-14">
               <h2 className="text-sm md:text-xl font-light text-white/70 tracking-widest text-reveal-inner uppercase flex flex-wrap justify-center items-center gap-3" style={{ animationDelay: '0.4s' }}>
-                <span>Data Scientist</span>
-                <span className="text-[#79E2F2] text-xl opacity-50">•</span>
-                <span>AI & ML</span>
-                <span className="text-[#79E2F2] text-xl opacity-50">•</span>
                 <span>UI Developer</span>
+                <span className="text-[#79E2F2] text-xl opacity-50">•</span>
+                <span>UI/UX Designer</span>
                 <span className="text-[#79E2F2] text-xl opacity-50">•</span>
                 <span className="text-white flex items-center gap-2"><IconCamera size={18} className="text-[#79E2F2]"/> Photographer</span>
               </h2>
             </div>
 
             <div className="text-reveal-mask">
-              <div className="flex flex-wrap justify-center gap-6 text-reveal-inner" style={{ animationDelay: '0.5s' }}>
+              <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-reveal-inner" style={{ animationDelay: '0.5s' }}>
                 <MagneticElement>
                   <button onClick={() => scrollToSection('Projects')} className="group flex items-center gap-3 px-8 py-4 rounded-full bg-[#79E2F2] text-[#030614] font-bold hover:bg-white transition-colors duration-300 shadow-[0_0_20px_rgba(121,226,242,0.4)] hover:shadow-[0_0_30px_rgba(255,255,255,0.6)]">
                     Explore Missions <IconArrowUpRight size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
                   </button>
                 </MagneticElement>
+                
+                {/* NEW PHOTOGRAPHY BUTTON */}
                 <MagneticElement>
-                  <button onClick={() => scrollToSection('Contact')} className="px-8 py-4 rounded-full bg-[#0a0f1d] border border-[#79E2F2]/30 text-white font-medium hover:border-[#79E2F2] hover:bg-[#79E2F2]/10 transition-all duration-300">
+                  <a href="photography.html" className="flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-[#0a0f1d]/50 backdrop-blur-md border border-[#79E2F2]/30 text-[#79E2F2] font-medium hover:border-[#79E2F2] hover:bg-[#79E2F2]/10 transition-all duration-300 shadow-[0_0_15px_rgba(121,226,242,0.1)]">
+                    <IconCamera size={18} /> View Photography
+                  </a>
+                </MagneticElement>
+
+                <MagneticElement>
+                  <button onClick={() => scrollToSection('Contact')} className="px-8 py-4 rounded-full bg-[#0a0f1d] border border-white/20 text-white font-medium hover:border-white hover:bg-white/5 transition-all duration-300">
                     Establish Contact
                   </button>
                 </MagneticElement>
@@ -402,9 +462,9 @@ export default function App() {
                   <div>
                     <h3 className="text-3xl font-light tracking-tight mb-6">Driven by logic. <br/><span className="font-bold text-white">Designed for humans.</span></h3>
                     <p className="text-white/60 text-lg leading-relaxed font-light">
-                      I am a CSE student at <strong className="text-white font-medium">IIIT Kalyani</strong> (Class of 2029). My core interests lie at the intersection of intelligence, design, and capturing moments. 
+                      I am a Computer Science & Engineering student at <strong className="text-white font-medium">IIIT Kalyani</strong> (Class of 2029). My core interests lie at the intersection of web design, creative interface engineering, and capturing moments through photography.
                       <br/><br/>
-                      I have a strong passion for AI/ML and Data Science, continuously working towards my goal of becoming a Data Scientist, while simultaneously building modern, intuitive web experiences and pursuing photography.
+                      I focus on continuously honing my technical capabilities while building modern, intuitive web experiences and crafting beautiful visual designs.
                     </p>
                   </div>
                 </div>
@@ -437,7 +497,7 @@ export default function App() {
               <SpotlightCard delay={400} className="md:col-span-1 md:row-span-1 p-6 flex flex-col justify-center">
                  <p className="text-xs text-[#79E2F2]/70 font-mono tracking-widest uppercase mb-4">Primary Directives</p>
                  <ul className="space-y-3 text-sm text-white/80 font-light">
-                   <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 bg-[#79E2F2] rounded-full shadow-[0_0_5px_#79E2F2]"></div> AI & Models</li>
+                   <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 bg-[#79E2F2] rounded-full shadow-[0_0_5px_#79E2F2]"></div> UI/UX Design</li>
                    <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 bg-[#79E2F2] rounded-full shadow-[0_0_5px_#79E2F2]"></div> Frontend Dev</li>
                    <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 bg-[#79E2F2] rounded-full shadow-[0_0_5px_#79E2F2]"></div> Photography</li>
                  </ul>
@@ -485,11 +545,11 @@ export default function App() {
                   <h3 className="text-5xl md:text-7xl font-bold tracking-tighter mb-6 group-hover:text-[#79E2F2] transition-colors duration-500 uppercase">Sentix</h3>
                   
                   <p className="text-white/60 text-lg leading-relaxed mb-8 max-w-lg font-light">
-                    An intelligent application built during the InnovateX Hackathon. Sentix combines modern web technologies to process and visualize data, showcasing a blend of intelligent features and clean UI/UX design.
+                    An intelligent application built during the InnovateX Hackathon. Sentix combines modern web technologies to process and visualize data, showcasing a blend of interactive features and clean UI/UX design.
                   </p>
                   
                   <div className="flex flex-wrap gap-3 mb-12">
-                    {['React', 'UI/UX', 'Data Processing'].map(tag => (
+                    {['React', 'UI/UX', 'Frontend Dev'].map(tag => (
                       <span key={tag} className="text-sm font-mono text-[#79E2F2]/60 bg-[#79E2F2]/5 px-3 py-1 rounded-sm border border-[#79E2F2]/10">
                         {`{ ${tag} }`}
                       </span>
@@ -559,7 +619,7 @@ export default function App() {
                 <h3 className="text-3xl font-bold mb-2 text-white">InnovateX Participant</h3>
                 <p className="text-white/40 font-mono text-sm mb-6 uppercase">Team BIT Breakers</p>
                 <p className="text-white/60 leading-relaxed font-light max-w-2xl">
-                  Thrived in a high-energy competitive environment. Collaborated to build Sentix, focusing on robust architecture and an intuitive user interface. Strengthened rapid prototyping skills and the ability to integrate intelligent features into web applications under time constraints.
+                  Thrived in a high-energy competitive environment. Collaborated to build Sentix, focusing on robust architecture and an intuitive user interface. Strengthened rapid prototyping skills and the ability to integrate modern features into web applications under time constraints.
                 </p>
               </div>
 
@@ -572,9 +632,9 @@ export default function App() {
                   Actively forging experience through hands-on building, late-night coding sessions, and continuous learning in modern tech stacks.
                 </p>
                 <ul className="space-y-4 text-white/60 text-sm font-light">
-                  <li className="flex items-center gap-4"><span className="w-8 h-px bg-[#79E2F2]/40"></span> Experimenting with Data Science & AI/ML (Python, Pandas)</li>
                   <li className="flex items-center gap-4"><span className="w-8 h-px bg-[#79E2F2]/40"></span> Developing Web Applications (React, Tailwind)</li>
-                  <li className="flex items-center gap-4"><span className="w-8 h-px bg-[#79E2F2]/40"></span> Combining Photography with UI/UX Design</li>
+                  <li className="flex items-center gap-4"><span className="w-8 h-px bg-[#79E2F2]/40"></span> Crafting Modern UI/UX Prototypes</li>
+                  <li className="flex items-center gap-4"><span className="w-8 h-px bg-[#79E2F2]/40"></span> Combining Photography with Visual Web Design</li>
                 </ul>
               </div>
               

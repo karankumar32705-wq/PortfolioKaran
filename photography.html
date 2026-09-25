@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Karan Kumar | Photography</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Swiper CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+  <style>
+    body {
+      background-color: #030614;
+      color: #E0E7FF;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      margin: 0;
+      overflow-x: hidden;
+    }
+    
+    .swiper {
+      width: 100%;
+      padding-top: 50px;
+      padding-bottom: 50px;
+    }
+
+    .swiper-slide {
+      background-position: center;
+      background-size: cover;
+      width: 300px;
+      height: 450px;
+      border-radius: 1.5rem;
+      border: 1px solid rgba(121, 226, 242, 0.2);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      background-color: #0a0f1d;
+    }
+
+    @media (min-width: 768px) {
+      .swiper-slide {
+        width: 400px;
+        height: 600px;
+      }
+    }
+
+    .swiper-slide-active {
+      border: 1px solid rgba(121, 226, 242, 0.6);
+      box-shadow: 0 0 40px rgba(121, 226, 242, 0.3);
+    }
+
+    .swiper-slide img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale(80%);
+      transition: filter 0.5s ease;
+    }
+
+    .swiper-slide-active img {
+      filter: grayscale(0%);
+    }
+
+    .bg-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80vw;
+      height: 80vw;
+      max-width: 800px;
+      max-height: 800px;
+      background: radial-gradient(circle, rgba(121, 226, 242, 0.1) 0%, transparent 60%);
+      filter: blur(80px);
+      z-index: -1;
+      pointer-events: none;
+    }
+    
+    .swiper-pagination-bullet {
+      background: rgba(255,255,255,0.4);
+    }
+    .swiper-pagination-bullet-active {
+      background: #79E2F2;
+      box-shadow: 0 0 10px #79E2F2;
+    }
+  </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col items-center">
+
+  <div class="bg-glow"></div>
+
+  <!-- Header & Back Button -->
+  <header class="w-full max-w-7xl mx-auto p-6 md:p-12 flex justify-between items-center z-10 relative mt-4">
+    <div class="font-bold text-2xl tracking-widest text-[#79E2F2]">
+      K<span class="text-white">.</span>
+    </div>
+    
+    <a href="/" class="group flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#0a0f1d] border border-[#79E2F2]/30 text-white font-medium hover:border-[#79E2F2] hover:bg-[#79E2F2]/10 transition-all duration-300 text-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:-translate-x-1 transition-transform">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Return to Core
+    </a>
+  </header>
+
+  <main class="flex-1 w-full flex flex-col justify-center items-center relative z-10">
+    <div class="text-center mb-6">
+      <h1 class="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-4 text-transparent bg-clip-text bg-gradient-to-b from-white to-white/50">
+        Visual <span class="text-[#79E2F2]">Logs</span>
+      </h1>
+      <p class="text-sm font-mono tracking-[0.2em] text-[#79E2F2]/70 uppercase">
+        Capturing light in 50 frames
+      </p>
+    </div>
+
+    <!-- Swiper Carousel Container -->
+    <div class="swiper mySwiper">
+      <div class="swiper-wrapper" id="carousel-wrapper">
+        <!-- Slides populated dynamically via script -->
+      </div>
+      <div class="swiper-pagination mt-12"></div>
+    </div>
+  </main>
+
+  <footer class="py-8 text-center text-xs font-mono text-white/30 tracking-widest uppercase z-10 relative mt-auto">
+    Optical Archives &copy; <span id="year"></span>
+  </footer>
+
+  <!-- Swiper JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const wrapper = document.getElementById('carousel-wrapper');
+    const TOTAL_IMAGES = 50;
+
+    let slidesHTML = '';
+    for (let i = 1; i <= TOTAL_IMAGES; i++) {
+      // Points directly to files like /photos/1.png, /photos/2.png, etc. stored in the public folder
+      const imgPath = `/photos/${i}.jpg`;
+      
+      slidesHTML += `
+        <div class="swiper-slide">
+          <img src="${imgPath}" alt="Photography frame ${i}" loading="lazy" onerror="this.src='https://picsum.photos/seed/${i}/800/1200'" />
+          <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end opacity-0 transition-opacity duration-300 slide-caption">
+            <span class="text-xs font-mono bg-black/50 backdrop-blur-md px-2 py-1 rounded border border-white/10 text-white">
+              FRAME // ${i.toString().padStart(2, '0')}
+            </span>
+          </div>
+        </div>
+      `;
+    }
+    wrapper.innerHTML = slidesHTML;
+
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .swiper-slide-active .slide-caption { opacity: 1; }
+    `;
+    document.head.appendChild(style);
+
+    // Initialize Swiper 3D Coverflow Effect
+    const swiper = new Swiper(".mySwiper", {
+      effect: "coverflow",
+      grabCursor: true,
+      centeredSlides: true,
+      slidesPerView: "auto",
+      initialSlide: 2,
+      coverflowEffect: {
+        rotate: 15,
+        stretch: 0,
+        depth: 250,
+        modifier: 1.5,
+        slideShadows: true,
+      },
+      keyboard: {
+        enabled: true,
+      },
+      mousewheel: {
+        forceToAxis: true,
+      },
+      pagination: {
+        el: ".swiper-pagination",
+        clickable: true,
+        dynamicBullets: true,
+      },
+    });
+  </script>
+</body>
+</html>
