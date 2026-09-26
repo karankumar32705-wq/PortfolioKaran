@@ -429,9 +429,9 @@ export default function App() {
                 
                 {/* NEW PHOTOGRAPHY BUTTON */}
                 <MagneticElement>
-                  <a href="photography.html" className="flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-[#0a0f1d]/50 backdrop-blur-md border border-[#79E2F2]/30 text-[#79E2F2] font-medium hover:border-[#79E2F2] hover:bg-[#79E2F2]/10 transition-all duration-300 shadow-[0_0_15px_rgba(121,226,242,0.1)]">
-                    <IconCamera size={18} /> View Photography
-                  </a>
+                 <a href="/photography.html" className="flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-[#0a0f1d]/50 backdrop-blur-md border border-[#79E2F2]/30 text-[#79E2F2] font-medium hover:border-[#79E2F2] hover:bg-[#79E2F2]/10 transition-all duration-300 shadow-[0_0_15px_rgba(121,226,242,0.1)]">
+                <IconCamera size={18} /> View Photography
+                </a>
                 </MagneticElement>
 
                 <MagneticElement>
