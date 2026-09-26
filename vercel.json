@@ -1,5 +1,16 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/photography.html",
+      "destination": "/photography.html"
+    },
+    {
+      "source": "/photos/(.*)",
+      "destination": "/photos/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
