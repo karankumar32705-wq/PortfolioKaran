@@ -113,7 +113,7 @@
         Visual <span class="text-[#79E2F2]">Logs</span>
       </h1>
       <p class="text-sm font-mono tracking-[0.2em] text-[#79E2F2]/70 uppercase">
-        Capturing light in 50 frames
+        Capturing light in 20 frames
       </p>
     </div>
 
@@ -137,7 +137,7 @@
     document.getElementById('year').textContent = new Date().getFullYear();
 
     const wrapper = document.getElementById('carousel-wrapper');
-    const TOTAL_IMAGES = 50;
+    const TOTAL_IMAGES = 20;
 
     let slidesHTML = '';
     for (let i = 1; i <= TOTAL_IMAGES; i++) {
@@ -146,7 +146,7 @@
       
       slidesHTML += `
         <div class="swiper-slide">
-          <img src="${imgPath}" alt="Photography frame ${i}" loading="lazy" onerror="this.src='https://picsum.photos/seed/${i}/800/1200'" />
+          <img src="${imgPath}" alt="Photography frame ${i}" loading="lazy" onerror="this.src='/photos/1.jpg'" />
           <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end opacity-0 transition-opacity duration-300 slide-caption">
             <span class="text-xs font-mono bg-black/50 backdrop-blur-md px-2 py-1 rounded border border-white/10 text-white">
               FRAME // ${i.toString().padStart(2, '0')}
