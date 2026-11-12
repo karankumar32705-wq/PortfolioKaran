@@ -141,8 +141,8 @@
 
     let slidesHTML = '';
     for (let i = 1; i <= TOTAL_IMAGES; i++) {
-      // Points directly to files like /photos/1.png, /photos/2.png, etc. stored in the public folder
-      const imgPath = `/photos/${i}.jpg`;
+      // Points directly to files like ./photos/1.png, ./photos/2.png, etc. stored in the public folder
+      const imgPath = `./photos/${i}.jpg`;
       
       slidesHTML += `
         <div class="swiper-slide">
